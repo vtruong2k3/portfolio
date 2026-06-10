@@ -1,0 +1,95 @@
+// Prisma schema for portfolio-be
+// Models defined per the dev-portfolio-3d design (Req 2).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique // Req 2.9
+  description String
+  thumbnail   String?
+  images      String[]
+  techStack   String[]
+  githubUrl   String?
+  demoUrl     String?
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([featured, order])
+}
+
+model Skill {
+  id       String  @id @default(cuid())
+  name     String
+  icon     String?
+  category String
+  level    Int
+  order    Int     @default(0)
+}
+
+model Experience {
+  id          String    @id @default(cuid())
+  company     String
+  position    String
+  description String
+  startDate   DateTime
+  endDate     DateTime? // null => current
+  order       Int       @default(0)
+}
+
+model BlogPost {
+  id          String    @id @default(cuid())
+  title       String
+  slug        String    @unique // Req 2.10
+  excerpt     String
+  content     String
+  coverImage  String?
+  tags        String[]
+  published   Boolean   @default(false)
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([published, publishedAt])
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  isRead    Boolean  @default(false) // Req 12.6, 16.2
+  createdAt DateTime @default(now())
+}
+
+model SiteSetting {
+  key   String @id // Req 2.11 (key is PK => unique)
+  value String
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String // bcrypt, Req 14.3
+  createdAt    DateTime @default(now())
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  referrer  String?
+  userAgent String? // coarse UA only, no PII (Req 22.3)
+  createdAt DateTime @default(now())
+
+  @@index([path, createdAt])
+}

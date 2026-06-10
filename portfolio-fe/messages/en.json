@@ -1,0 +1,90 @@
+{
+  "nav": {
+    "hero": "Home",
+    "about": "About",
+    "skills": "Skills",
+    "projects": "Projects",
+    "experience": "Experience",
+    "contact": "Contact",
+    "blog": "Blog",
+    "language": "Language"
+  },
+  "hero": {
+    "greeting": "Hi, I'm",
+    "role": "Full Stack Developer",
+    "subtitle": "I craft premium 3D web experiences with React, Three.js & NestJS.",
+    "cta_projects": "View Projects",
+    "cta_cv": "Download CV",
+    "scroll_hint": "Scroll to explore"
+  },
+  "about": {
+    "label": "Who I am",
+    "title": "About Me",
+    "description": "A passionate full-stack developer specializing in building high-performance, visually stunning web applications. I bridge the gap between beautiful design and solid engineering.",
+    "experience_years": "Years Experience",
+    "projects_done": "Projects Done",
+    "technologies": "Technologies",
+    "timeline_label": "Career Journey"
+  },
+  "skills": {
+    "label": "What I Know",
+    "title": "Technical Skills",
+    "subtitle": "A curated selection of technologies I work with, from frontend to backend and DevOps.",
+    "cloud_hint": "Hover a skill to highlight · Drag to explore",
+    "also_worked": "Also worked with"
+  },
+  "projects": {
+    "label": "My Work",
+    "title": "Featured Projects",
+    "subtitle": "A selection of projects that showcase my skills and passion for building.",
+    "loading": "Loading projects...",
+    "error": "Unable to load projects. Please try again.",
+    "retry": "Retry",
+    "empty": "No projects found.",
+    "github": "GitHub",
+    "demo": "Live Demo",
+    "view_all": "View All Projects",
+    "back": "Back to Projects"
+  },
+  "experience": {
+    "label": "My Journey",
+    "title": "Experience",
+    "subtitle": "My professional career path and key milestones.",
+    "loading": "Loading experience...",
+    "error": "Unable to load experience.",
+    "present": "Present"
+  },
+  "contact": {
+    "label": "Get In Touch",
+    "title": "Contact Me",
+    "subtitle": "Have a project in mind? Let's talk. I'm always open to new opportunities.",
+    "name": "Full Name",
+    "name_placeholder": "John Doe",
+    "email": "Email Address",
+    "email_placeholder": "john@example.com",
+    "message": "Message",
+    "message_placeholder": "Tell me about your project...",
+    "submit": "Send Message",
+    "sending": "Sending...",
+    "success": "Message sent! I'll get back to you soon.",
+    "error": "Something went wrong. Please try again.",
+    "validation_required": "This field is required",
+    "validation_email": "Please enter a valid email address",
+    "validation_min": "Message must be at least 10 characters",
+    "socials": "Find me on"
+  },
+  "blog": {
+    "label": "Writing",
+    "title": "The Blog",
+    "subtitle": "Thoughts on web development, 3D graphics, TypeScript, and software engineering.",
+    "empty": "No posts published yet. Check back soon!",
+    "back": "Back to Blog",
+    "published": "Published"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong.",
+    "retry": "Try again",
+    "not_found": "Not Found"
+  }
+}

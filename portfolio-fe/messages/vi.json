@@ -1,0 +1,90 @@
+{
+  "nav": {
+    "hero": "Trang Chủ",
+    "about": "Giới Thiệu",
+    "skills": "Kỹ Năng",
+    "projects": "Dự Án",
+    "experience": "Kinh Nghiệm",
+    "contact": "Liên Hệ",
+    "blog": "Blog",
+    "language": "Ngôn ngữ"
+  },
+  "hero": {
+    "greeting": "Xin chào, tôi là",
+    "role": "Full Stack Developer",
+    "subtitle": "Tôi tạo ra các trải nghiệm web 3D cao cấp với React, Three.js & NestJS.",
+    "cta_projects": "Xem Dự Án",
+    "cta_cv": "Tải CV",
+    "scroll_hint": "Cuộn để khám phá"
+  },
+  "about": {
+    "label": "Tôi là ai",
+    "title": "Giới Thiệu",
+    "description": "Một lập trình viên full-stack đam mê xây dựng các ứng dụng web hiệu suất cao và trực quan. Tôi kết hợp thiết kế đẹp với kỹ thuật vững chắc để tạo ra những sản phẩm ấn tượng.",
+    "experience_years": "Năm Kinh Nghiệm",
+    "projects_done": "Dự Án Hoàn Thành",
+    "technologies": "Công Nghệ",
+    "timeline_label": "Hành Trình Nghề Nghiệp"
+  },
+  "skills": {
+    "label": "Tôi biết gì",
+    "title": "Kỹ Năng Kỹ Thuật",
+    "subtitle": "Các công nghệ tôi sử dụng, từ frontend đến backend và DevOps.",
+    "cloud_hint": "Di chuột vào kỹ năng · Kéo để khám phá",
+    "also_worked": "Cũng đã làm việc với"
+  },
+  "projects": {
+    "label": "Công Việc Của Tôi",
+    "title": "Dự Án Nổi Bật",
+    "subtitle": "Tuyển chọn các dự án thể hiện kỹ năng và niềm đam mê xây dựng của tôi.",
+    "loading": "Đang tải dự án...",
+    "error": "Không thể tải dự án. Vui lòng thử lại.",
+    "retry": "Thử lại",
+    "empty": "Chưa có dự án nào.",
+    "github": "GitHub",
+    "demo": "Xem Demo",
+    "view_all": "Xem Tất Cả Dự Án",
+    "back": "Quay Lại Dự Án"
+  },
+  "experience": {
+    "label": "Hành Trình Của Tôi",
+    "title": "Kinh Nghiệm",
+    "subtitle": "Lộ trình nghề nghiệp và các cột mốc quan trọng.",
+    "loading": "Đang tải kinh nghiệm...",
+    "error": "Không thể tải kinh nghiệm.",
+    "present": "Hiện Tại"
+  },
+  "contact": {
+    "label": "Liên Lạc",
+    "title": "Liên Hệ Với Tôi",
+    "subtitle": "Có dự án trong đầu? Hãy nói chuyện. Tôi luôn sẵn sàng cho cơ hội mới.",
+    "name": "Họ và Tên",
+    "name_placeholder": "Nguyễn Văn A",
+    "email": "Địa Chỉ Email",
+    "email_placeholder": "email@example.com",
+    "message": "Tin Nhắn",
+    "message_placeholder": "Kể cho tôi nghe về dự án của bạn...",
+    "submit": "Gửi Tin Nhắn",
+    "sending": "Đang gửi...",
+    "success": "Tin nhắn đã gửi! Tôi sẽ phản hồi sớm.",
+    "error": "Có lỗi xảy ra. Vui lòng thử lại.",
+    "validation_required": "Trường này là bắt buộc",
+    "validation_email": "Vui lòng nhập địa chỉ email hợp lệ",
+    "validation_min": "Tin nhắn phải có ít nhất 10 ký tự",
+    "socials": "Tìm tôi trên"
+  },
+  "blog": {
+    "label": "Bài Viết",
+    "title": "Blog",
+    "subtitle": "Suy nghĩ về lập trình web, đồ họa 3D, TypeScript và kỹ thuật phần mềm.",
+    "empty": "Chưa có bài viết nào. Hãy quay lại sau!",
+    "back": "Quay Lại Blog",
+    "published": "Đã đăng"
+  },
+  "common": {
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra.",
+    "retry": "Thử lại",
+    "not_found": "Không Tìm Thấy"
+  }
+}
