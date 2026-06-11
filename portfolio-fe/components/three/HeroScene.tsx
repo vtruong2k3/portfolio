@@ -1,235 +1,147 @@
 "use client";
 
-import { useRef, useMemo, useEffect, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Sphere, Torus, TorusKnot, MeshDistortMaterial, Float, Stars } from "@react-three/drei";
-import * as THREE from "three";
+/**
+ * HeroScene — điểm vào (entry) của cảnh 3D Hero phía client.
+ *
+ * Trách nhiệm của component này là dựng "khung" an toàn cho cảnh 3D:
+ *
+ * 1. WebGL guard (Req 12.1, 12.2): chỉ mount `<Canvas>` khi `isWebGLAvailable()`
+ *    trả về `true`. Việc kiểm tra được thực hiện SAU khi mount (trong
+ *    `useEffect`) để tránh lệch SSR/CSR (hydration mismatch) — server và lần
+ *    render client đầu tiên đều hiển thị `<HeroFallback/>`, sau đó nếu WebGL
+ *    khả dụng mới chuyển sang dựng Canvas.
+ *
+ * 2. Error boundary (Req 12.2): `<Canvas>` được bọc trong `CanvasErrorBoundary`.
+ *    Khi xảy ra lỗi runtime trong cây 3D, boundary ghi log qua `console.error`
+ *    và chuyển sang render `<HeroFallback/>` thay vì làm sập trang.
+ *
+ * 3. Tính chất trang trí / khả năng truy cập (Req 9.1, 9.3): container được đánh
+ *    dấu `aria-hidden="true"` và không có `tabIndex`, nên cảnh 3D hoàn toàn bị
+ *    ẩn khỏi cây khả năng truy cập và không thể nhận focus bàn phím. Nền canvas
+ *    trong suốt (`alpha: true` + `background: transparent`).
+ *
+ * 4. Quản lý chất lượng (Req 7.4, 7.5, 7.6): `<Canvas>` được bọc trong
+ *    `<QualityProvider>`; `CanvasInner` đọc `tier`/`preset` từ Quality_Manager
+ *    rồi áp `clampDpr` cho DPR và `antialias`/`shadows` theo preset của tier.
+ *
+ * _Requirements: 7.4, 7.5, 7.6, 9.1, 9.3, 12.1, 12.2_
+ */
 
-// ─── Floating Geometry ───────────────────────────────────────────────────────
+import {
+  Component,
+  useEffect,
+  useState,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
+import { Canvas } from "@react-three/fiber";
 
-function FloatingTorusKnot() {
-  const meshRef = useRef<THREE.Mesh>(null);
+import { isWebGLAvailable } from "@/lib/three/webgl";
+import { clampDpr } from "@/lib/three/graphicsTier";
+import { HeroFallback } from "@/components/three/HeroFallback";
+import { QualityProvider } from "@/components/three/QualityProvider";
+import { useQualityTier } from "@/hooks/useQualityTier";
+import { Scene } from "@/components/three/hero/Scene";
 
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return;
-    meshRef.current.rotation.x = clock.elapsedTime * 0.15;
-    meshRef.current.rotation.y = clock.elapsedTime * 0.2;
-  });
+// ─── Error boundary ────────────────────────────────────────────────────────
 
-  return (
-    <Float speed={1.5} rotationIntensity={0.4} floatIntensity={0.8}>
-      <TorusKnot ref={meshRef} args={[1, 0.32, 128, 32]} position={[0, 0, 0]}>
-        <MeshDistortMaterial
-          color="#22d3ee"
-          emissive="#0891b2"
-          emissiveIntensity={0.3}
-          metalness={0.8}
-          roughness={0.1}
-          distort={0.25}
-          speed={2}
-          transparent
-          opacity={0.9}
-        />
-      </TorusKnot>
-    </Float>
-  );
+interface CanvasErrorBoundaryProps {
+  /** Nội dung thay thế khi cây con ném lỗi runtime. */
+  fallback: ReactNode;
+  children: ReactNode;
 }
 
-function FloatingOrb({ position, color, scale = 1 }: {
-  position: [number, number, number];
-  color: string;
-  scale?: number;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return;
-    meshRef.current.position.y = position[1] + Math.sin(clock.elapsedTime + position[0]) * 0.3;
-  });
-
-  return (
-    <Sphere ref={meshRef} args={[0.5 * scale, 32, 32]} position={position}>
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.4}
-        metalness={0.6}
-        roughness={0.2}
-        transparent
-        opacity={0.7}
-      />
-    </Sphere>
-  );
+interface CanvasErrorBoundaryState {
+  hasError: boolean;
 }
 
-function FloatingRing({ position, color }: {
-  position: [number, number, number];
-  color: string;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
+/**
+ * Bắt lỗi runtime phát sinh trong cây `<Canvas>` (khởi tạo WebGL, shader,
+ * render…). Khi có lỗi: ghi log `console.error` và render `fallback`
+ * (`<HeroFallback/>`) để trang vẫn dùng được (Req 12.2).
+ */
+class CanvasErrorBoundary extends Component<
+  CanvasErrorBoundaryProps,
+  CanvasErrorBoundaryState
+> {
+  constructor(props: CanvasErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
 
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return;
-    meshRef.current.rotation.x = clock.elapsedTime * 0.3;
-    meshRef.current.rotation.z = clock.elapsedTime * 0.15;
-  });
+  static getDerivedStateFromError(): CanvasErrorBoundaryState {
+    // Chuyển sang trạng thái lỗi để render fallback ở lần render kế tiếp.
+    return { hasError: true };
+  }
 
-  return (
-    <Torus ref={meshRef} args={[0.7, 0.06, 16, 64]} position={position}>
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.6}
-        metalness={0.9}
-        roughness={0.05}
-        transparent
-        opacity={0.8}
-      />
-    </Torus>
-  );
-}
+  componentDidCatch(error: Error, info: ErrorInfo): void {
+    // Ghi log lỗi để chẩn đoán; không ném lại để tránh sập toàn trang.
+    console.error("HeroScene: lỗi runtime trong Canvas 3D, chuyển sang fallback.", error, info);
+  }
 
-// ─── Particle Field ───────────────────────────────────────────────────────────
-
-function ParticleField({ count = 400 }: { count?: number }) {
-  const pointsRef = useRef<THREE.Points>(null);
-
-  const { positions, colors } = useMemo(() => {
-    const positions = new Float32Array(count * 3);
-    const colors = new Float32Array(count * 3);
-    const cyan = new THREE.Color("#22d3ee");
-    const violet = new THREE.Color("#a855f7");
-
-    for (let i = 0; i < count; i++) {
-      positions[i * 3]     = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 20;
-
-      const c = Math.random() > 0.5 ? cyan : violet;
-      colors[i * 3]     = c.r;
-      colors[i * 3 + 1] = c.g;
-      colors[i * 3 + 2] = c.b;
+  render(): ReactNode {
+    if (this.state.hasError) {
+      return this.props.fallback;
     }
-    return { positions, colors };
-  }, [count]);
+    return this.props.children;
+  }
+}
 
-  useFrame(({ clock }) => {
-    if (!pointsRef.current) return;
-    pointsRef.current.rotation.y = clock.elapsedTime * 0.03;
-    pointsRef.current.rotation.x = Math.sin(clock.elapsedTime * 0.05) * 0.1;
-  });
+// ─── Canvas (đọc tier/preset từ Quality_Manager) ─────────────────────────────
+
+/**
+ * CanvasInner — chỉ render phía client, BÊN TRONG `<QualityProvider>`.
+ *
+ * Đọc `tier`/`preset` hiện tại từ Quality_Manager để cấu hình Canvas:
+ * - `dpr`: giới hạn theo trần của tier bằng `clampDpr` (Req 7.4).
+ * - `gl.antialias`: theo preset của tier (Req 7.5).
+ * - `shadows`: theo preset của tier (Req 7.6).
+ * - `alpha: true` + `background: transparent`: nền canvas trong suốt (Req 9.3).
+ */
+function CanvasInner() {
+  const { tier, preset } = useQualityTier();
+
+  // Guard `window` cho an toàn (CanvasInner chỉ chạy client nhưng vẫn phòng vệ).
+  const rawDpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
 
   return (
-    <points ref={pointsRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          args={[colors, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.04}
-        vertexColors
-        transparent
-        opacity={0.7}
-        sizeAttenuation
-      />
-    </points>
+    <Canvas
+      camera={{ position: [0, 0, 7], fov: 55 }}
+      gl={{ antialias: preset.antialias, alpha: true }}
+      dpr={clampDpr(rawDpr, tier)}
+      shadows={preset.shadows}
+      style={{ background: "transparent" }}
+    >
+      <Scene />
+    </Canvas>
   );
 }
 
-// ─── Mouse-tracking camera rig ────────────────────────────────────────────────
-
-function CameraRig() {
-  const { camera, gl } = useThree();
-  const mouseRef = useRef({ x: 0, y: 0 });
-  const targetRef = useRef({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseRef.current.y = -(e.clientY / window.innerHeight - 0.5) * 2;
-    };
-    gl.domElement.parentElement?.addEventListener("mousemove", onMove);
-    return () => gl.domElement.parentElement?.removeEventListener("mousemove", onMove);
-  }, [gl]);
-
-  useFrame(() => {
-    // Lerp toward mouse — smooth lag effect
-    targetRef.current.x += (mouseRef.current.x * 0.6 - targetRef.current.x) * 0.05;
-    targetRef.current.y += (mouseRef.current.y * 0.4 - targetRef.current.y) * 0.05;
-    camera.position.x = targetRef.current.x;
-    camera.position.y = targetRef.current.y;
-    camera.lookAt(0, 0, 0);
-  });
-
-  return null;
-}
-
-// ─── Main Scene ───────────────────────────────────────────────────────────────
-
-function Scene({ reducedMotion }: { reducedMotion: boolean }) {
-  return (
-    <>
-      <CameraRig />
-
-      {/* Ambient + point lights for neon feel */}
-      <ambientLight intensity={0.15} />
-      <pointLight position={[5, 5, 5]}   color="#22d3ee" intensity={3} />
-      <pointLight position={[-5, -3, -5]} color="#a855f7" intensity={2} />
-      <pointLight position={[0, 8, 0]}   color="#3b82f6" intensity={1.5} />
-
-      {/* Central TorusKnot */}
-      <FloatingTorusKnot />
-
-      {/* Orbiting orbs */}
-      <FloatingOrb position={[-3.5, 1, -1]}  color="#22d3ee" scale={0.6} />
-      <FloatingOrb position={[3.2, -1.5, -2]} color="#a855f7" scale={0.5} />
-      <FloatingOrb position={[-2, -2.5, 0]}  color="#3b82f6" scale={0.4} />
-      <FloatingOrb position={[4, 2.5, -3]}   color="#ec4899" scale={0.35} />
-
-      {/* Floating rings */}
-      <FloatingRing position={[-4, 0, -2]}  color="#22d3ee" />
-      <FloatingRing position={[3.5, 2, -1]} color="#a855f7" />
-
-      {/* Star field */}
-      {!reducedMotion && (
-        <Stars radius={30} depth={30} count={800} factor={2} fade speed={0.5} />
-      )}
-
-      {/* Custom particle cloud */}
-      <ParticleField count={reducedMotion ? 100 : 500} />
-    </>
-  );
-}
-
-// ─── Exported component (no dynamic import needed — caller does that) ─────────
+// ─── Component xuất khẩu ─────────────────────────────────────────────────────
 
 export function HeroScene() {
-  const [reducedMotion, setReducedMotion] = useState(false);
+  // Trước khi xác nhận WebGL khả dụng, hiển thị fallback. Việc kiểm tra chạy
+  // sau mount (useEffect) nên server + render client đầu tiên luôn khớp nhau,
+  // tránh hydration mismatch (Req 12.1).
+  const [webglAvailable, setWebglAvailable] = useState(false);
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    setWebglAvailable(isWebGLAvailable());
   }, []);
 
   return (
     <div className="absolute inset-0 w-full h-full" aria-hidden="true">
-      <Canvas
-        camera={{ position: [0, 0, 7], fov: 55 }}
-        gl={{ antialias: true, alpha: true }}
-        dpr={[1, 1.5]}
-        style={{ background: "transparent" }}
-      >
-        <Scene reducedMotion={reducedMotion} />
-      </Canvas>
+      {webglAvailable ? (
+        <QualityProvider>
+          <CanvasErrorBoundary fallback={<HeroFallback />}>
+            <CanvasInner />
+          </CanvasErrorBoundary>
+        </QualityProvider>
+      ) : (
+        <HeroFallback />
+      )}
     </div>
   );
 }
+
+export default HeroScene;

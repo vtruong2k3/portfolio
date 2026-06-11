@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useReducer, useRef } from "react";
-import { HeroSceneDynamic } from "@/components/three";
+import { HeroSceneWithFadeIn } from "@/components/three";
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 const HERO_DATA = {
@@ -139,7 +139,7 @@ export function HeroSection() {
       aria-label="Hero section"
     >
       {/* ── 3D scene as full-bleed background ── */}
-      <HeroSceneDynamic />
+      <HeroSceneWithFadeIn />
 
       {/* ── Subtle grid on top of 3D ── */}
       <GridOverlay />

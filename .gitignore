@@ -42,7 +42,6 @@ pnpm-debug.log*
 Thumbs.db
 
 # Workspace specifics
-.kiro/
 .gemini/
 scratch/
 brain/
