@@ -41,10 +41,13 @@ vi.mock("@/lib/three/webgl", () => ({
 }));
 
 // Canvas thật cần WebGL → thay bằng marker render children.
+// `useFrame` cũng được mock (no-op) vì `SceneCanvas` gắn một `FpsMonitor` bên
+// trong Canvas và FpsMonitor dựa vào `useFrame`.
 vi.mock("@react-three/fiber", () => ({
   Canvas: ({ children }: { children?: ReactNode }) => (
     <div data-testid="r3f-canvas">{children}</div>
   ),
+  useFrame: () => {},
 }));
 
 // Scene thật kéo theo nhiều phụ thuộc 3D → thay bằng marker, có thể ném lỗi.

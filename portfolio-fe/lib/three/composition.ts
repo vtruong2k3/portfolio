@@ -50,10 +50,15 @@ export function visibleHalfWidth(viewport: ViewportInfo): number {
  * Tính tỉ lệ để vật thể bán kính `objectRadius` vừa trọn khung hình.
  *
  * Trả về giá trị trong khoảng `(0, 1]`: chỉ thu nhỏ, không bao giờ phóng to.
- * Bán kính sau khi nhân tỉ lệ không vượt quá nửa chiều cao lẫn nửa chiều rộng
- * vùng nhìn thấy:
+ * Bán kính sau khi nhân tỉ lệ phải vừa trọn CẢ nửa chiều cao LẪN nửa chiều rộng
+ * vùng nhìn thấy, nên ta lấy theo cạnh hẹp hơn để không bị cắt ở bất kỳ cạnh nào:
  *
- *   scale = min(1, halfHeight / objectRadius, halfWidth / objectRadius)
+ *   scale = min(1, min(halfHeight, halfWidth) / objectRadius)
+ *
+ * Bất biến đảm bảo (Property 5): `objectRadius * scale <= halfHeight` VÀ
+ * `objectRadius * scale <= halfWidth` với mọi kích thước viewport. Vì phép
+ * chia rồi nhân số thực có thể tràn ~1 ULP khiến vật thể bị cắt sát cạnh, ta
+ * kẹp lại tỉ lệ một cách thận trọng để bất biến luôn đúng nghiêm ngặt.
  *
  * Các đầu vào không hợp lệ (bán kính <= 0, kích thước/FOV/khoảng cách không
  * dương hoặc không hữu hạn) được xử lý thận trọng bằng cách trả về `1`
@@ -83,9 +88,18 @@ export function computeFitScale(
     return 1;
   }
 
-  const fitHeight = halfHeight / objectRadius;
-  const fitWidth = halfWidth / objectRadius;
+  // Cạnh hẹp hơn quyết định tỉ lệ: vừa cạnh này thì cũng vừa cạnh còn lại.
+  const minHalfExtent = Math.min(halfHeight, halfWidth);
 
   // Chỉ thu nhỏ (<= 1), không phóng to.
-  return Math.min(1, fitHeight, fitWidth);
+  let scale = Math.min(1, minHalfExtent / objectRadius);
+
+  // An toàn số thực: bảo đảm `objectRadius * scale` không vượt quá nửa kích
+  // thước nhìn thấy (tránh tràn ~1 ULP từ phép chia rồi nhân), giữ vững bất
+  // biến "không bị cắt ở bất kỳ cạnh nào".
+  while (scale > 0 && objectRadius * scale > minHalfExtent) {
+    scale *= 1 - Number.EPSILON;
+  }
+
+  return scale;
 }

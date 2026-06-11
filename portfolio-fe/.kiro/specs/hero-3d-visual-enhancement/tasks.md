@@ -231,7 +231,7 @@ Mỗi property test PHẢI gắn comment theo định dạng:
     - Render test xác nhận container cảnh `aria-hidden="true"`, không nhận keyboard focus; `vitest-axe` không vi phạm trên `HeroSection`; nội dung văn bản giữ tương phản đạt WCAG AA
     - _Requirements: 9.1, 9.3, 9.4_
 
-- [ ] 21. Checkpoint cuối - Đảm bảo toàn bộ test đạt
+- [x] 21. Checkpoint cuối - Đảm bảo toàn bộ test đạt
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

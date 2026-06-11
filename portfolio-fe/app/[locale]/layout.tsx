@@ -65,7 +65,10 @@ export default async function LocaleLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden">
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden"
+        suppressHydrationWarning
+      >
         <NextIntlClientProvider messages={messages} locale={locale}>
           <QueryProvider>
             <LenisProvider>

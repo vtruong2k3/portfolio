@@ -32,7 +32,24 @@ export function isWebGLAvailable(): boolean {
     const context =
       canvas.getContext("webgl") ??
       canvas.getContext("experimental-webgl");
-    return context !== null && context !== undefined;
+    const available = context !== null && context !== undefined;
+
+    // Giải phóng NGAY context thăm dò: nếu không, mỗi lần gọi sẽ rò rỉ một
+    // WebGL context. Trình duyệt giới hạn số context đồng thời (~16); khi vượt
+    // ngưỡng, trình duyệt huỷ context cũ nhất — kể cả context của <Canvas>
+    // chính — gây "WebGLRenderer: Context Lost" và làm banner trắng/đơ.
+    // Best-effort + optional chaining để không ảnh hưởng giá trị trả về và
+    // không ném với context giả lập trong test.
+    if (available) {
+      try {
+        const ctx = context as WebGLRenderingContext;
+        ctx.getExtension?.("WEBGL_lose_context")?.loseContext();
+      } catch {
+        // Bỏ qua: giải phóng context thăm dò chỉ là tối ưu, không bắt buộc.
+      }
+    }
+
+    return available;
   } catch {
     // Bất kỳ lỗi nào trong lúc thăm dò context đều coi như không khả dụng.
     return false;

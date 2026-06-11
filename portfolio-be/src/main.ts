@@ -7,8 +7,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // CORS restricted to the configured web origin (Req 18.2).
+  // `credentials: true` is required because cross-origin `navigator.sendBeacon`
+  // (used by the analytics page-view beacon) sends the request in credentials
+  // mode 'include'; without it the preflight fails. Origin is explicitly pinned
+  // (never '*'), so enabling credentials is safe.
   app.enableCors({
     origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000',
+    credentials: true,
   });
 
   // Consistent error envelope across the API (Req 3.4, 3.5).

@@ -143,3 +143,107 @@ export const HERO_CONTRAST_PAIRS: readonly HeroContrastPair[] = [
     largeText: false,
   },
 ] as const;
+
+/**
+ * ───────────────────────────────────────────────────────────────────────────
+ * Asset_Suite — các cặp màu chữ/nền cụ thể cần xác nhận WCAG AA
+ * ───────────────────────────────────────────────────────────────────────────
+ *
+ * Ngoài vùng Hero, bộ 3D Asset_Suite còn có văn bản trên các thành phần
+ * DOM/CSS (Experience_Timeline, các nút liên kết của Project_Carousel,
+ * Contact_Terminal) và văn bản nằm phía trên/liền kề Earth_Globe. Các token
+ * dưới đây lấy từ design tokens trong `app/globals.css`.
+ */
+export const ASSET_SUITE_COLORS = {
+  /** `--background` — nền nền tảng tối nhất của trang. */
+  background: "#050816",
+  /** `--surface` — nền hiệu dụng của thẻ kính/nút tương tác. */
+  surface: "#080a12",
+  /**
+   * `--surface-2` — nền kính sáng hơn của thẻ timeline (đặt trên nền
+   * lưới/mạch điện ở lớp dưới). Dùng làm nền hiệu dụng bảo thủ cho thẻ
+   * timeline: đây là sắc nền sáng nhất mà chữ thẻ có thể nằm lên, nên cho
+   * tỉ lệ tương phản thấp nhất (trường hợp xấu nhất) so với chữ sáng.
+   */
+  surface2: "#0d1120",
+  /**
+   * Nền hiệu dụng cho văn bản liền kề Earth_Globe: `--background` cộng lớp
+   * phát sáng xanh nhẹ của địa cầu. Mô hình hoá bằng một sắc tối ngả xanh
+   * sáng hơn `--background` để kiểm tra trường hợp xấu nhất (glow làm nền
+   * sáng lên, giảm tương phản với chữ sáng).
+   */
+  earthGlowBackground: "#0a1626",
+  /** `--foreground` — tiêu đề và văn bản chính. */
+  foreground: "#e6edf3",
+  /** `--muted` — nhãn phụ, khoảng thời gian, văn bản thứ cấp. */
+  muted: "#8b9ab8",
+  /** `--primary` (cyan) — chữ liên kết/điểm nhấn và dấu nhắc dòng lệnh. */
+  primary: "#22d3ee",
+} as const;
+
+/**
+ * Các cặp (màu chữ, màu nền) thực tế của Asset_Suite cần đạt chuẩn WCAG AA.
+ *
+ * Phủ ba nhóm sử dụng:
+ *   - Thẻ Experience_Timeline trên nền lưới/mạch điện (Req 9.6, 9.10).
+ *   - Văn bản tương tác: nút liên kết Project_Carousel, dấu nhắc/ô nhập của
+ *     Contact_Terminal (Req 12.5).
+ *   - Văn bản phía trên/liền kề Earth_Globe có phát sáng xanh (Req 11.2).
+ *
+ * Mọi cặp đều phải đạt WCAG AA — xác nhận bởi Property 21 (task 7.2).
+ *
+ * _Requirements: 9.6, 9.10, 11.2, 12.5_
+ */
+export const ASSET_SUITE_CONTRAST_PAIRS: readonly HeroContrastPair[] = [
+  // ── Thẻ Experience_Timeline (nền hiệu dụng = surface-2 trên nền lưới) ──
+  {
+    name: "timeline: foreground trên surface-2 (tiêu đề/mô tả thẻ)",
+    foreground: ASSET_SUITE_COLORS.foreground,
+    background: ASSET_SUITE_COLORS.surface2,
+    largeText: false,
+  },
+  {
+    name: "timeline: muted trên surface-2 (khoảng thời gian/nhãn phụ)",
+    foreground: ASSET_SUITE_COLORS.muted,
+    background: ASSET_SUITE_COLORS.surface2,
+    largeText: false,
+  },
+  {
+    name: "timeline: primary trên surface-2 (chức danh/điểm nhấn)",
+    foreground: ASSET_SUITE_COLORS.primary,
+    background: ASSET_SUITE_COLORS.surface2,
+    largeText: false,
+  },
+  // ── Văn bản tương tác (nền hiệu dụng = surface) ──
+  {
+    name: "interactive: primary trên surface (nút liên kết GitHub/Demo, dấu nhắc dòng lệnh)",
+    foreground: ASSET_SUITE_COLORS.primary,
+    background: ASSET_SUITE_COLORS.surface,
+    largeText: false,
+  },
+  {
+    name: "interactive: foreground trên surface (chữ ô nhập/nhãn nút)",
+    foreground: ASSET_SUITE_COLORS.foreground,
+    background: ASSET_SUITE_COLORS.surface,
+    largeText: false,
+  },
+  {
+    name: "interactive: muted trên surface (nhãn phụ/placeholder)",
+    foreground: ASSET_SUITE_COLORS.muted,
+    background: ASSET_SUITE_COLORS.surface,
+    largeText: false,
+  },
+  // ── Văn bản liền kề Earth_Globe (nền hiệu dụng = background + glow xanh) ──
+  {
+    name: "earth: foreground trên nền có glow xanh (tiêu đề/văn bản Contact/Footer)",
+    foreground: ASSET_SUITE_COLORS.foreground,
+    background: ASSET_SUITE_COLORS.earthGlowBackground,
+    largeText: false,
+  },
+  {
+    name: "earth: muted trên nền có glow xanh (văn bản thứ cấp Contact/Footer)",
+    foreground: ASSET_SUITE_COLORS.muted,
+    background: ASSET_SUITE_COLORS.earthGlowBackground,
+    largeText: false,
+  },
+] as const;

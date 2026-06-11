@@ -42,4 +42,36 @@ describe("reducedAmplitude", () => {
       { numRuns: 100 },
     );
   });
+
+  // Feature: portfolio-3d-asset-suite, Property 6: Reduced_Motion_Mode kẹp biên độ dao động
+  // Validates: Requirements 4.6
+  it("biên độ kẹp <= biên độ gốc và <= REDUCED_AMPLITUDE_MAX (0.05) khi reduced; identity khi không reduced", () => {
+    fc.assert(
+      fc.property(
+        // amplitude: biên độ dao động không âm (đơn vị thế giới)
+        fc.double({ min: 0, max: 100, noNaN: true, noDefaultInfinity: true }),
+        // frequency: tần số hữu hạn (rad/s)
+        fc.double({ noNaN: true, noDefaultInfinity: true }),
+        // phase: lệch pha hữu hạn (rad)
+        fc.double({ noNaN: true, noDefaultInfinity: true }),
+        (amplitude, frequency, phase) => {
+          const config: FloatConfig = { amplitude, frequency, phase };
+
+          // Reduced_Motion_Mode bật: biên độ không vượt quá cả biên độ gốc lẫn
+          // ngưỡng giảm REDUCED_AMPLITUDE_MAX (0.05).
+          const reduced = reducedAmplitude(config, true);
+          expect(reduced.amplitude).toBeLessThanOrEqual(config.amplitude);
+          expect(reduced.amplitude).toBeLessThanOrEqual(REDUCED_AMPLITUDE_MAX);
+          expect(REDUCED_AMPLITUDE_MAX).toBe(0.05);
+
+          // Reduced_Motion_Mode tắt: trả về cấu hình gốc không đổi (identity).
+          const identity = reducedAmplitude(config, false);
+          expect(identity.amplitude).toBe(config.amplitude);
+          expect(identity.frequency).toBe(config.frequency);
+          expect(identity.phase).toBe(config.phase);
+        },
+      ),
+      { numRuns: 100 },
+    );
+  });
 });
