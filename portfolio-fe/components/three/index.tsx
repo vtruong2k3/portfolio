@@ -104,3 +104,42 @@ export const SkillsCloudDynamic = dynamic(
     ),
   }
 );
+
+/**
+ * Wrapper `next/dynamic` cho `SkillsOrbitScene` với `ssr: false` (Req 13.1).
+ *
+ * Việc nạp động (`ssr: false`) bảo đảm toàn bộ nội dung văn bản của Skills
+ * Section được render trước (phía server + lần hydration đầu) còn cảnh 3D chỉ
+ * mount sau ở client, nên văn bản KHÔNG bị chặn bởi tiến trình nạp 3D.
+ *
+ * `loading` là placeholder chiếm đúng kích thước khung của cảnh (cùng chiều cao
+ * với cảnh thật) để giữ Cumulative Layout Shift bằng 0 (Req 13.2).
+ */
+export const SkillsOrbitSceneDynamic = dynamic(
+  () => import("./skills/SkillsOrbitScene").then((m) => m.SkillsOrbitScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="absolute inset-0 flex items-center justify-center"
+        aria-hidden="true"
+      >
+        <div className="w-12 h-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+      </div>
+    ),
+  }
+);
+
+/**
+ * Wrapper `next/dynamic` cho `EarthGlobeScene` với `ssr: false` (Req 3.2).
+ *
+ * Earth_Globe là nền phụ trang trí (tùy chọn) cho Contact/Footer. `loading` trả
+ * `null` vì cảnh chỉ là trang trí và phải "im lặng" khi chưa sẵn sàng (Req 11.7).
+ */
+export const EarthGlobeDynamic = dynamic(
+  () => import("./earth/EarthGlobeScene").then((m) => m.EarthGlobeScene),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);

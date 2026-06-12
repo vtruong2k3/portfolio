@@ -31,7 +31,7 @@ import { PALETTE } from "@/lib/three/palette";
 
 // State chia sẻ cho các mock (hoisted để dùng được bên trong factory của vi.mock).
 const { webglMock, sceneState } = vi.hoisted(() => ({
-  webglMock: vi.fn<[], boolean>(() => false),
+  webglMock: vi.fn<() => boolean>(() => false),
   sceneState: { shouldThrow: false },
 }));
 

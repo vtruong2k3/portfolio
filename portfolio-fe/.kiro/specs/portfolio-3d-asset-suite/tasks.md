@@ -22,6 +22,7 @@ Language: **TypeScript** (matches the design). Tests run with `npm run test`
 `vitest-axe`.
 
 Conventions:
+
 - Each correctness property is implemented by **exactly one** property-based test
   (fast-check, ≥100 iterations), placed in its own file next to the module
   (matching the existing `animation.<fn>.test.ts` convention), and tagged in the
@@ -184,159 +185,159 @@ Conventions:
     - File `lib/three/fpsMonitor.downgrade.assetSuite.test.ts`; rising-edge `shouldDowngrade` once, `downgradeTier` adjacent step, stays at low
     - **Validates: Requirements 13.4, 13.5**
 
-- [~] 8. Checkpoint - Ensure all pure-logic tests pass
+- [x] 8. Checkpoint - Ensure all pure-logic tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 9. Extract shared safety frame `SceneCanvas`
+- [x] 9. Extract shared safety frame `SceneCanvas`
   - [x] 9.1 Create `components/three/SceneCanvas.tsx`
     - Extract the safety frame from `HeroScene.tsx`: WebGL guard via `isWebGLAvailable` (`useSyncExternalStore`), `CanvasErrorBoundary`, `QualityProvider`, `clampDpr`/preset, `alpha:true` + `aria-hidden`; accept `children`, `fallback` (default `<HeroFallback/>`), `cameraConfig`, `fpsConfig` (default `{ windowMs:1000, minFps:40, sustainedMs:2000 }`)
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 13.3, 13.4_
   - [x] 9.2 Refactor `HeroScene.tsx` to consume `SceneCanvas`
     - Replace inlined safety frame with `SceneCanvas`; keep Hero behavior unchanged
     - _Requirements: 3.1, 3.9_
-  - [~] 9.3 Write render and a11y tests for `SceneCanvas`
+  - [x] 9.3 Write render and a11y tests for `SceneCanvas`
     - WebGL-unavailable → fallback within 1s; runtime error → fallback + page survives; aria-hidden + transparent canvas (vitest-axe)
     - File `components/three/SceneCanvas.test.tsx`
     - _Requirements: 3.4, 3.5, 3.6, 3.7, 1.8, 12.1, 12.2_
 
-- [ ] 10. Desktop_Model replaces TorusKnot in Hero
-  - [~] 10.1 Create `components/three/hero/DesktopModel.tsx`
+- [x] 10. Desktop_Model replaces TorusKnot in Hero
+  - [x] 10.1 Create `components/three/hero/DesktopModel.tsx`
     - Load optimized GLB via `useGLTF` using `resolveModelPath("programmer-desktop")`; apply dark material with at least one Accent_Palette emissive
     - Center + fit using `computeNormalizationTransform`/`computeFitScale` (recompute on viewport change, debounced 500ms); reduce detail/shadows on tier `low`; clamp motion via Motion_Config when reduced
     - `<Suspense>` Loading_State covering Hero background; 10s timeout → `onError`; expose `onLoaded`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 2.5, 2.8_
-  - [~] 10.2 Wire `DesktopModel` into `components/three/hero/Scene.tsx`
+  - [x] 10.2 Wire `DesktopModel` into `components/three/hero/Scene.tsx`
     - Replace `CentralObject` (TorusKnot); reuse existing Lighting and PostProcessing
     - _Requirements: 3.8, 3.9_
-  - [~] 10.3 Write render and edge-case tests for `DesktopModel`
+  - [x] 10.3 Write render and edge-case tests for `DesktopModel`
     - Focal/centered, emissive accent, low-tier preset, loading covers background, 10s timeout/load-fail → HeroFallback (keeps palette + interactive content)
     - File `components/three/hero/DesktopModel.test.tsx`
     - _Requirements: 4.1, 4.2, 4.5, 4.7, 4.8, 4.9_
-  - [~] 10.4 Write a11y test for Hero scene with `DesktopModel`
+  - [x] 10.4 Write a11y test for Hero scene with `DesktopModel`
     - Scene `aria-hidden="true"`, decorative, outside tab order (vitest-axe)
     - File `components/three/hero/DesktopModel.a11y.test.tsx`
     - _Requirements: 4.10, 12.1, 12.2_
 
-- [ ] 11. Terminal_Screen on the desktop monitor
-  - [~] 11.1 Create `components/three/hero/TerminalScreen.tsx`
+- [x] 11. Terminal_Screen on the desktop monitor
+  - [x] 11.1 Create `components/three/hero/TerminalScreen.tsx`
     - Plane anchored to the monitor surface; black panel opacity 0.7–1.0 with cyan/green code text; blinking cursor via `cursorVisible` (period 0.5–1.0s) when not reduced, static when reduced; glow 4–16px via Bloom/emissive; tier `low` → static `textures/terminal-screen.png` with glow off; decorative, non-focusable
     - _Requirements: 5.2, 5.3, 5.4, 5.5, 5.6, 5.7_
-  - [~] 11.2 Mount `TerminalScreen` from `DesktopModel` after load
+  - [x] 11.2 Mount `TerminalScreen` from `DesktopModel` after load
     - Render on the monitor surface within 1s of model load via `onLoaded`; local error boundary → uniform black panel without breaking layout
     - _Requirements: 5.1, 5.8_
-  - [~] 11.3 Write render and edge-case tests for `TerminalScreen`
+  - [x] 11.3 Write render and edge-case tests for `TerminalScreen`
     - Renders after load, opacity/colors, glow range, low-tier static texture, texture-fail → black panel, decorative no-focus (vitest-axe)
     - File `components/three/hero/TerminalScreen.test.tsx`
     - _Requirements: 5.1, 5.2, 5.4, 5.6, 5.7, 5.8_
 
-- [ ] 12. Cube_Logo
+- [x] 12. Cube_Logo
   - [x] 12.1 Create `components/three/CubeLogo.tsx`
     - Code-built `boxGeometry` with glass/light-metal `meshPhysicalMaterial`; cyan→violet gradient; letter "T" on the camera-facing face via drei `<Text>`; rotate around vertical axis via `advanceRotation` (delta-time) at ≤0.1 rev/s so one revolution ≥10s; glow within config; stop when reduced; reduce glow on tier `low`; `role` prop ("hero-bg" | "loading" | "brand")
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8_
-  - [~] 12.2 Write render tests for `CubeLogo`
+  - [x] 12.2 Write render tests for `CubeLogo`
     - Geometry/material, gradient, letter "T", glow limits, role variants, reduced-motion stops rotation, low-tier glow reduction
     - File `components/three/CubeLogo.test.tsx`
     - _Requirements: 6.1, 6.2, 6.3, 6.5, 6.6, 6.7, 6.8_
 
-- [ ] 13. Tech_Icon_Orbit in Skills section
-  - [~] 13.1 Create `components/three/skills/TechIconCard.tsx`
+- [x] 13. Tech_Icon_Orbit in Skills section
+  - [x] 13.1 Create `components/three/skills/TechIconCard.tsx`
     - drei `<Billboard>` + SVG texture plane from `public/icons/`; hover shows skill label and boosts glow within 200ms, restores on leave; SVG load failure → fallback icon keeping position; decorative
     - _Requirements: 7.4, 7.7, 7.8, 7.11, 7.12_
-  - [~] 13.2 Create `components/three/skills/TechIconOrbit.tsx`
+  - [x] 13.2 Create `components/three/skills/TechIconOrbit.tsx`
     - Use `selectCardCount` (6–8, ≤6 on low) and `computeOrbitPosition` to lay out cards; apply Orbit_Motion_Config rotation + float; static when reduced
     - _Requirements: 7.2, 7.3, 7.5, 7.6, 7.9, 7.10, 7.13_
-  - [~] 13.3 Integrate `TechIconOrbit` into `SkillsSection` via `SceneCanvas`
+  - [x] 13.3 Integrate `TechIconOrbit` into `SkillsSection` via `SceneCanvas`
     - Feed `useSkills()` data; render section text before mounting the 3D scene
     - _Requirements: 7.1, 13.1_
-  - [~] 13.4 Write render and edge-case tests for orbit
+  - [x] 13.4 Write render and edge-case tests for orbit
     - Hover label + glow timing, card count by tier, icons loaded from `public/icons/`, SVG-fail fallback keeps position
     - File `components/three/skills/TechIconOrbit.test.tsx`
     - _Requirements: 7.2, 7.7, 7.8, 7.10, 7.11, 7.12_
-  - [~] 13.5 Write a11y test for Skills orbit scene
+  - [x] 13.5 Write a11y test for Skills orbit scene
     - Decorative `aria-hidden`, outside tab order (vitest-axe)
     - File `components/three/skills/TechIconOrbit.a11y.test.tsx`
     - _Requirements: 12.1, 12.2_
 
-- [~] 14. Checkpoint - Ensure Hero/Skills 3D and tests pass
+- [x] 14. Checkpoint - Ensure Hero/Skills 3D and tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 15. Project_Carousel (DOM/CSS 3D) in Projects section
-  - [~] 15.1 Create `components/sections/ProjectCarousel.tsx`
+- [x] 15. Project_Carousel (DOM/CSS 3D) in Projects section
+  - [x] 15.1 Create `components/sections/ProjectCarousel.tsx`
     - DOM/CSS 3D carousel (`perspective`, `transform-style: preserve-3d`) using `computeCardPlacement`/`navigate`/`wrapIndex`; center card 1.1–1.3× with side opacity 0.4–0.6; hover tilt ≤15° + border glow + image zoom ≤1.1× + cyan/violet shadow (100–300ms); next/prev 300–600ms; reduced-motion disables tilt/zoom (transition ≤100ms); responsive ≤768px (single center card, title ≥16px, touch targets ≥44×44); use `resolveProjectImage` for placeholders and link-visibility helper to hide null GitHub/Demo buttons; GitHub/Demo as focusable `<a>` with descriptive labels and visible focus
     - _Requirements: 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.13_
-  - [~] 15.2 Integrate `ProjectCarousel` into `ProjectsSection`
+  - [x] 15.2 Integrate `ProjectCarousel` into `ProjectsSection`
     - Feed `useProjects()`; render error message on load failure (layout intact); empty-state message when no projects
     - _Requirements: 8.1, 8.2, 8.11, 8.12_
-  - [~] 15.3 Write render tests for `ProjectCarousel`
+  - [x] 15.3 Write render tests for `ProjectCarousel`
     - Field rendering, scale/opacity bands, hover tilt/zoom/timing, navigate timing, reduced-motion, responsive ≤768px
     - File `components/sections/ProjectCarousel.test.tsx`
     - _Requirements: 8.2, 8.3, 8.4, 8.5, 8.9, 8.10_
-  - [~] 15.4 Write edge-case and a11y tests for `ProjectCarousel`
+  - [x] 15.4 Write edge-case and a11y tests for `ProjectCarousel`
     - Load error, empty state, missing-image placeholder, null link hidden; links focusable with non-empty accessible names (vitest-axe)
     - File `components/sections/ProjectCarousel.a11y.test.tsx`
     - _Requirements: 8.7, 8.8, 8.11, 8.12, 8.13, 12.3_
 
-- [ ] 16. Experience_Timeline (DOM/CSS + scroll) in Experience section
-  - [~] 16.1 Create `components/sections/ExperienceTimeline.tsx`
+- [x] 16. Experience_Timeline (DOM/CSS + scroll) in Experience section
+  - [x] 16.1 Create `components/sections/ExperienceTimeline.tsx`
     - DOM/CSS circuit-style vertical line + glass cards; order via `sortExperiences`; highlight line proportional to `normalizeScrollProgress` (Lenis + IntersectionObserver); cards slide in at ≥30% visibility (300–600ms) using `slideDirection` (even=left, odd=right); circuit/grid background below cards without breaking contrast; `formatDateRange` ("Present"); reduced-motion → final state, line 100%
     - _Requirements: 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9_
-  - [~] 16.2 Integrate `ExperienceTimeline` into `ExperienceSection`
+  - [x] 16.2 Integrate `ExperienceTimeline` into `ExperienceSection`
     - Feed `useExperiences()`; empty list → message, no line/cards rendered
     - _Requirements: 9.1, 9.2, 9.11_
-  - [~] 16.3 Write render and edge-case tests for `ExperienceTimeline`
+  - [x] 16.3 Write render and edge-case tests for `ExperienceTimeline`
     - Line + per-card structure, reduced-motion final state (line 100%), "Present" label, empty-state message
     - File `components/sections/ExperienceTimeline.test.tsx`
     - _Requirements: 9.3, 9.8, 9.9, 9.11_
-  - [~] 16.4 Write a11y and contrast tests for `ExperienceTimeline`
+  - [x] 16.4 Write a11y and contrast tests for `ExperienceTimeline`
     - WCAG AA text contrast (normal 4.5:1 / large 3:1) with grid background; no axe violations (vitest-axe)
     - File `components/sections/ExperienceTimeline.a11y.test.tsx`
     - _Requirements: 9.6, 9.10, 12.5_
 
-- [ ] 17. Contact_Terminal (HTML form) in Contact section
-  - [~] 17.1 Create `components/sections/ContactTerminal.tsx`
+- [x] 17. Contact_Terminal (HTML form) in Contact section
+  - [x] 17.1 Create `components/sections/ContactTerminal.tsx`
     - HTML form with command-line prompts for name/email/message + blinking cursor (1s cycle) via `cursorVisible`; frosted glass card, monospace; focus glow applied only to the focused field; react-hook-form + `zodResolver(contactSchema)` (trimmed); invalid → block submit, per-field errors, keep input; reduced-motion → static cursor, no tilt
     - _Requirements: 10.2, 10.3, 10.4, 10.5, 10.6, 10.11, 10.13_
-  - [~] 17.2 Integrate `ContactTerminal` into `ContactSection`
+  - [x] 17.2 Integrate `ContactTerminal` into `ContactSection`
     - Valid submit calls `useSendContact`; pending → processing state + disabled submit (no duplicate sends); success → "Message sent successfully!"; failure → error message keeping input
     - _Requirements: 10.1, 10.7, 10.8, 10.9, 10.10_
-  - [~] 17.3 Write behavior and edge-case tests for `ContactTerminal`
+  - [x] 17.3 Write behavior and edge-case tests for `ContactTerminal`
     - Invalid blocks + keeps data, valid calls mutation, pending disables submit, success line, failure keeps data
     - File `components/sections/ContactTerminal.test.tsx`
     - _Requirements: 10.6, 10.7, 10.8, 10.9, 10.10_
-  - [~] 17.4 Write a11y test for `ContactTerminal`
+  - [x] 17.4 Write a11y test for `ContactTerminal`
     - Each field focusable with associated label/accessible name; keyboard-only completion and submit via user-event (vitest-axe)
     - File `components/sections/ContactTerminal.a11y.test.tsx`
     - _Requirements: 10.11, 10.12, 12.3_
 
-- [ ] 18. Earth_Globe (optional) background for Contact/Footer
-  - [~] 18.1 Create `components/three/earth/EarthGlobe.tsx`
+- [x] 18. Earth_Globe (optional) background for Contact/Footer
+  - [x] 18.1 Create `components/three/earth/EarthGlobe.tsx`
     - Code-built `sphereGeometry` + `textures/earth.jpg`; rotate using `EARTH_ROTATION_DEG_PER_SEC` (0.5–2°/s), stop when reduced; subtle blue glow not breaking WCAG AA; ≤40% viewport, `pointer-events: none`, decorative `aria-hidden`; WebGL/texture failure → hidden, keep static background, no user-facing error
     - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.6, 11.7_
-  - [~] 18.2 Integrate `EarthGlobe` behind feature flag in Contact/Footer via `SceneCanvas`
+  - [x] 18.2 Integrate `EarthGlobe` behind feature flag in Contact/Footer via `SceneCanvas`
     - Enable via `isEarthEnabled(tier, NEXT_PUBLIC_ENABLE_EARTH)`; disabled on tier `low`
     - _Requirements: 11.3, 11.5_
-  - [~] 18.3 Write render and edge-case tests for `EarthGlobe`
+  - [x] 18.3 Write render and edge-case tests for `EarthGlobe`
     - Size ≤40% + pointer-events none, reduced-motion static, decorative aria-hidden, WebGL/texture-fail hidden without error (vitest-axe)
     - File `components/three/earth/EarthGlobe.test.tsx`
     - _Requirements: 11.3, 11.4, 11.6, 11.7, 12.1_
 
-- [ ] 19. Asset pipeline `scripts/optimize-assets.mjs`
+- [x] 19. Asset pipeline `scripts/optimize-assets.mjs`
   - [x] 19.1 Create `scripts/optimize-assets.mjs`
     - Run `npx gltf-transform optimize public/models/programmer_desktop_3d_pc.glb public/models/programmer-desktop.optimized.glb`; verify exit code and output existence; compare sizes (output ≤ source, warn if larger); apply bounding-box normalization (center→origin, maxDim→1.0) using transform from `lib/three/bbox.ts`; on failure keep source + clear error + non-zero exit
     - _Requirements: 2.1, 2.2, 2.4, 2.7_
-  - [~] 19.2 Add npm script and document Public_Asset_Layout
+  - [x] 19.2 Add npm script and document Public_Asset_Layout
     - Add `optimize:assets` script to `package.json`; document expected outputs (`models/programmer-desktop.optimized.glb`, optional `models/cube-logo.glb`, `models/earth.glb`; `textures/terminal-screen.png`, optional `textures/earth.jpg`, `textures/noise.png`; `icons/*.svg`) and `models/`/`textures/`/`icons/` layout
     - _Requirements: 2.3, 2.6_
-  - [~] 19.3 Write integration test for the optimize script
+  - [x] 19.3 Write integration test for the optimize script
     - Run script on source GLB → output exists and `size ≤ source` (2.1); simulate CLI failure (exit≠0/missing output) → keep source + clear error + non-zero exit (2.7)
     - File `scripts/optimize-assets.integration.test.mjs`
     - _Requirements: 2.1, 2.7_
-  - [~] 19.4 Write smoke test for Public_Asset_Layout
+  - [x] 19.4 Write smoke test for Public_Asset_Layout
     - Output path is `models/programmer-desktop.optimized.glb` (2.2); `models/`/`textures/`/`icons/` directory structure (2.3); expected output files exist per layout table (2.6)
     - File `scripts/optimize-assets.smoke.test.mjs`
     - _Requirements: 2.2, 2.3, 2.6_
 
-- [~] 20. Final checkpoint - Ensure all tests pass
+- [x] 20. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
@@ -353,11 +354,89 @@ Conventions:
 ```json
 {
   "waves": [
-    { "id": 0, "tasks": ["1.1", "1.4", "2.1", "2.3", "3.1", "3.3", "4.1", "5.1", "6.1", "7.1", "9.1"] },
-    { "id": 1, "tasks": ["1.2", "1.3", "1.5", "1.6", "1.7", "2.2", "2.4", "3.2", "3.4", "4.2", "4.3", "4.4", "4.5", "5.2", "5.3", "5.4", "5.5", "6.2", "6.3", "6.4", "6.5", "7.2", "7.3", "7.4", "7.5", "9.2", "12.1", "19.1"] },
-    { "id": 2, "tasks": ["9.3", "10.1", "12.2", "13.1", "15.1", "16.1", "17.1", "18.1", "19.2"] },
-    { "id": 3, "tasks": ["10.2", "11.1", "13.2", "15.2", "16.2", "17.2", "19.3", "19.4"] },
-    { "id": 4, "tasks": ["10.3", "10.4", "11.2", "13.3", "15.3", "15.4", "16.3", "16.4", "17.3", "17.4", "18.2"] },
+    {
+      "id": 0,
+      "tasks": [
+        "1.1",
+        "1.4",
+        "2.1",
+        "2.3",
+        "3.1",
+        "3.3",
+        "4.1",
+        "5.1",
+        "6.1",
+        "7.1",
+        "9.1"
+      ]
+    },
+    {
+      "id": 1,
+      "tasks": [
+        "1.2",
+        "1.3",
+        "1.5",
+        "1.6",
+        "1.7",
+        "2.2",
+        "2.4",
+        "3.2",
+        "3.4",
+        "4.2",
+        "4.3",
+        "4.4",
+        "4.5",
+        "5.2",
+        "5.3",
+        "5.4",
+        "5.5",
+        "6.2",
+        "6.3",
+        "6.4",
+        "6.5",
+        "7.2",
+        "7.3",
+        "7.4",
+        "7.5",
+        "9.2",
+        "12.1",
+        "19.1"
+      ]
+    },
+    {
+      "id": 2,
+      "tasks": [
+        "9.3",
+        "10.1",
+        "12.2",
+        "13.1",
+        "15.1",
+        "16.1",
+        "17.1",
+        "18.1",
+        "19.2"
+      ]
+    },
+    {
+      "id": 3,
+      "tasks": ["10.2", "11.1", "13.2", "15.2", "16.2", "17.2", "19.3", "19.4"]
+    },
+    {
+      "id": 4,
+      "tasks": [
+        "10.3",
+        "10.4",
+        "11.2",
+        "13.3",
+        "15.3",
+        "15.4",
+        "16.3",
+        "16.4",
+        "17.3",
+        "17.4",
+        "18.2"
+      ]
+    },
     { "id": 5, "tasks": ["11.3", "13.4", "13.5", "18.3"] }
   ]
 }

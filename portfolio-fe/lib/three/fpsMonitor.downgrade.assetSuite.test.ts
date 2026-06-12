@@ -43,12 +43,16 @@ const scenarioArb: fc.Arbitrary<{
   })
   .chain((config) => {
     // deltaMs > 1000/minFps => averageFps = 1000/deltaMs < minFps (luôn dưới ngưỡng).
+    // Dùng deltaMs nguyên (ms) để số học cộng dồn `belowThresholdMs` là CHÍNH XÁC
+    // và khớp tuyệt đối với `Math.ceil(sustainedMs / deltaMs)`. Nếu dùng số thực,
+    // tại các biên có tỉ số sustainedMs/deltaMs là số nguyên, phép cộng dồn lặp lại
+    // bị sai số dấu phẩy động và bật `shouldDowngrade` trễ một frame -> flaky.
+    // Cận dưới ceil(threshold*1.2) vẫn > threshold nên biên an toàn được giữ nguyên.
     const thresholdDelta = 1000 / config.minFps;
     return fc
-      .double({
-        min: thresholdDelta * 1.2,
-        max: thresholdDelta * 3,
-        noNaN: true,
+      .integer({
+        min: Math.ceil(thresholdDelta * 1.2),
+        max: Math.floor(thresholdDelta * 3),
       })
       .chain((deltaMs) => {
         // Số frame tối thiểu để chạm sustainedMs, cộng thêm 5 frame quan sát.

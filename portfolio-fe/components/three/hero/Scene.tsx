@@ -20,7 +20,8 @@
  * Cây render con:
  * - `CameraRig`     — parallax theo con trỏ/chạm (giữ gốc khi reducedMotion).
  * - `Lighting`      — key/fill/ambient + environment theo `preset`.
- * - `CentralObject` — TorusKnot PBR, fit-scale + chuyển động delta-based.
+ * - `DesktopModel`  — mô hình Programmer Desktop (GLB), fit-scale + chuyển động
+ *                     delta-based; thay thế TorusKnot (`CentralObject`).
  * - `Decorations`   — orbs + rings PBR phân bố theo chiều sâu.
  * - `ParticleField` — trường hạt + Stars theo `preset`/reducedMotion.
  * - `PostProcessing`— Bloom + Vignette (tự tắt ở tier `low` qua `preset`).
@@ -33,7 +34,7 @@ import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 import { CameraRig } from "./CameraRig";
 import { Lighting } from "./Lighting";
-import { CentralObject } from "./CentralObject";
+import { DesktopModel } from "./DesktopModel";
 import { Decorations } from "./Decorations";
 import { ParticleField } from "./ParticleField";
 import { PostProcessing } from "./PostProcessing";
@@ -46,7 +47,7 @@ export function Scene() {
     <>
       <CameraRig reducedMotion={reducedMotion} />
       <Lighting preset={preset} />
-      <CentralObject reducedMotion={reducedMotion} />
+      <DesktopModel reducedMotion={reducedMotion} preset={preset} />
       <Decorations reducedMotion={reducedMotion} />
       <ParticleField preset={preset} reducedMotion={reducedMotion} />
       <PostProcessing

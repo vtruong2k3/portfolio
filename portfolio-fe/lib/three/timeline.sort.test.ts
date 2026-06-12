@@ -18,12 +18,22 @@ describe("sortExperiences", () => {
     position: fc.string(),
     description: fc.string(),
     // startDate hợp lệ trong khoảng rộng (ms epoch) để đảm bảo phân giải được.
+    // noInvalidDate: true để fast-check không sinh "Invalid Date" tại biên,
+    // tránh RangeError khi gọi .toISOString().
     startDate: fc
-      .date({ min: new Date("1970-01-01"), max: new Date("2100-01-01") })
+      .date({
+        min: new Date("1970-01-01"),
+        max: new Date("2100-01-01"),
+        noInvalidDate: true,
+      })
       .map((d) => d.toISOString()),
     endDate: fc.option(
       fc
-        .date({ min: new Date("1970-01-01"), max: new Date("2100-01-01") })
+        .date({
+          min: new Date("1970-01-01"),
+          max: new Date("2100-01-01"),
+          noInvalidDate: true,
+        })
         .map((d) => d.toISOString()),
       { nil: null },
     ),

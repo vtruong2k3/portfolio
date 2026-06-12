@@ -1,15 +1,12 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { contactSchema } from "@/lib/schemas/contact.schema";
-import type { z } from "zod";
+import type { ContactSchema } from "@/lib/schemas/contact.schema";
 import { useSendContact } from "@/hooks/mutations/use-contact";
 import { GlassCard } from "@/components/ui/GlassCard";
-
-type ContactFormData = z.infer<typeof contactSchema>;
+import { ContactTerminal } from "@/components/sections/ContactTerminal";
+import { EarthGlobeDynamic } from "@/components/three";
 
 const SOCIAL_LINKS = [
   {
@@ -64,53 +61,16 @@ function RevealWrapper({ children, delay = 0 }: { children: React.ReactNode; del
   return <div ref={ref} className="reveal">{children}</div>;
 }
 
-function InputField({
-  id,
-  label,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  const errorId = `${id}-error`;
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-sm font-medium text-foreground">
-        {label} <span className="text-accent text-xs" aria-hidden="true">*</span>
-      </label>
-      {children}
-      {error && (
-        <p id={errorId} role="alert" className="text-xs text-accent-strong flex items-center gap-1">
-          <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-          </svg>
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
 export function ContactSection() {
-  const { mutate: sendContact, isPending } = useSendContact();
+  const { mutate: sendContact, isPending, isSuccess, error } = useSendContact();
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-  });
-
-  const onSubmit = (data: ContactFormData) => {
+  // Valid submit → gọi Contact_Mutation (Req 10.7). Pending → ContactTerminal vô
+  // hiệu nút gửi tránh gửi trùng (Req 10.8); success → dòng thành công (Req 10.9);
+  // failure → thông báo lỗi, giữ nguyên dữ liệu đã nhập (Req 10.10).
+  const onValidSubmit = (data: ContactSchema) => {
     sendContact(data, {
       onSuccess: () => {
         toast.success("Message sent! I'll get back to you soon. 🚀");
-        reset();
       },
       onError: (err) => {
         toast.error(err.message || "Something went wrong. Please try again.");
@@ -118,13 +78,18 @@ export function ContactSection() {
     });
   };
 
-  const inputClass =
-    "w-full px-4 py-3 rounded-xl glass border border-border text-foreground text-sm placeholder:text-muted focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all duration-200";
-  const inputErrorClass = "border-accent-strong/50 focus:border-accent-strong focus:ring-accent-strong/30";
+  const errorMessage = error
+    ? error.message || "Something went wrong. Please try again."
+    : null;
 
   return (
     <section id="contact" className="py-24 relative" aria-label="Contact section">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/3 rounded-full blur-3xl pointer-events-none" aria-hidden="true" />
+
+      {/* Earth_Globe (tùy chọn) — nền phụ trang trí phía sau Contact/Footer.
+          Bật qua flag NEXT_PUBLIC_ENABLE_EARTH và tier ≠ low (isEarthEnabled);
+          decorative, pointer-events none, ≤40% viewport (Req 11.3, 11.5). */}
+      <EarthGlobeDynamic />
 
       <div className="max-w-6xl mx-auto px-6">
         {/* Heading */}
@@ -143,100 +108,14 @@ export function ContactSection() {
         </RevealWrapper>
 
         <div className="grid lg:grid-cols-2 gap-12 items-start">
-          {/* Left: Contact form */}
+          {/* Left: Contact terminal form (Req 10.1) */}
           <RevealWrapper delay={100}>
-            <GlassCard className="p-8">
-              <h3 className="text-xl font-bold mb-6 text-foreground">Send a Message</h3>
-
-              {/* Contact form (Req 12.1) */}
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                noValidate
-                aria-label="Contact form"
-                className="flex flex-col gap-5"
-              >
-                {/* Name */}
-                <InputField
-                  id="contact-name"
-                  label="Name"
-                  error={errors.name?.message}
-                >
-                  <input
-                    id="contact-name"
-                    type="text"
-                    autoComplete="name"
-                    placeholder="Your name"
-                    aria-required="true"
-                    aria-describedby={errors.name ? "contact-name-error" : undefined}
-                    aria-invalid={!!errors.name}
-                    className={`${inputClass} ${errors.name ? inputErrorClass : ""}`}
-                    {...register("name")}
-                  />
-                </InputField>
-
-                {/* Email (Req 12.4 — invalid email format validation) */}
-                <InputField
-                  id="contact-email"
-                  label="Email"
-                  error={errors.email?.message}
-                >
-                  <input
-                    id="contact-email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="your@email.com"
-                    aria-required="true"
-                    aria-describedby={errors.email ? "contact-email-error" : undefined}
-                    aria-invalid={!!errors.email}
-                    className={`${inputClass} ${errors.email ? inputErrorClass : ""}`}
-                    {...register("email")}
-                  />
-                </InputField>
-
-                {/* Message (Req 12.5 — required fields) */}
-                <InputField
-                  id="contact-message"
-                  label="Message"
-                  error={errors.message?.message}
-                >
-                  <textarea
-                    id="contact-message"
-                    rows={5}
-                    placeholder="Tell me about your project..."
-                    aria-required="true"
-                    aria-describedby={errors.message ? "contact-message-error" : undefined}
-                    aria-invalid={!!errors.message}
-                    className={`${inputClass} resize-none ${errors.message ? inputErrorClass : ""}`}
-                    {...register("message")}
-                  />
-                </InputField>
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  aria-busy={isPending}
-                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-primary-strong text-background font-semibold text-sm hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-300 glow-cyan flex items-center justify-center gap-2"
-                >
-                  {isPending ? (
-                    <>
-                      <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                      </svg>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      Send Message
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                    </>
-                  )}
-                </button>
-              </form>
-            </GlassCard>
+            <ContactTerminal
+              onValidSubmit={onValidSubmit}
+              isPending={isPending}
+              isSuccess={isSuccess}
+              errorMessage={errorMessage}
+            />
           </RevealWrapper>
 
           {/* Right: Info + social links */}

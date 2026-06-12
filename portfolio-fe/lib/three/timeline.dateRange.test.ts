@@ -13,7 +13,11 @@ import { PRESENT_LABEL, formatDateRange } from "./timeline";
 describe("formatDateRange", () => {
   /** Một chuỗi ngày ISO hợp lệ trong khoảng rộng (phân giải được). */
   const isoDateArb: fc.Arbitrary<string> = fc
-    .date({ min: new Date("1970-01-01"), max: new Date("2100-01-01") })
+    .date({
+      min: new Date("1970-01-01"),
+      max: new Date("2100-01-01"),
+      noInvalidDate: true,
+    })
     .map((d) => d.toISOString());
 
   /**

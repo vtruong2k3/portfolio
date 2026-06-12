@@ -30,7 +30,7 @@ const { dynamicCalls, reducedMotionMock } = vi.hoisted(() => ({
     loader: unknown;
     opts?: { ssr?: boolean; loading?: () => ReactNode };
   }>,
-  reducedMotionMock: vi.fn<[], boolean>(() => false),
+  reducedMotionMock: vi.fn<() => boolean>(() => false),
 }));
 
 // `next/dynamic` cần tải module R3F thật → thay bằng marker, ghi lại options để

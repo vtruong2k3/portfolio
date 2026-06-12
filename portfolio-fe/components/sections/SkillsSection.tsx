@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect } from "react";
 import { GlassCard } from "@/components/ui/GlassCard";
-import { SkillsCloudDynamic } from "@/components/three";
+import { SkillsOrbitSceneDynamic } from "@/components/three";
 
 const SKILLS_DATA = [
   {
@@ -127,13 +127,19 @@ export function SkillsSection() {
           </div>
         </RevealWrapper>
 
-        {/* ── 3D Skills Word Cloud ── */}
+        {/* ── 3D Tech Icon Orbit ──
+            Section text (heading above) renders first as static DOM; the 3D
+            orbit scene is mounted via a dynamic (ssr:false) wrapper inside a
+            fixed-height relative container so text is never blocked by the 3D
+            load and layout does not shift (Req 7.1, 13.1, 13.2). */}
         <RevealWrapper delay={100}>
           <div className="mb-12 glass rounded-2xl overflow-hidden border border-border">
             <p className="text-center text-xs text-muted uppercase tracking-widest pt-5 font-semibold">
-              Hover a skill to highlight · Drag to explore
+              Hover an icon to reveal the skill · Tech orbit
             </p>
-            <SkillsCloudDynamic />
+            <div className="relative w-full h-[480px]">
+              <SkillsOrbitSceneDynamic />
+            </div>
           </div>
         </RevealWrapper>
 
